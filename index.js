@@ -174,7 +174,7 @@ async function startMatch(channel) {
 
         // تثبيت العجلة وتحويل النص لإعلان الفائز دون إخفاء الحجم الطبيعي
         await wheelMsg.edit({ 
-            content: `🎯 **وقفت العجلة! النتيجة استقرت على الفائز: ${winner.displayName}**`
+            content: `<@${winner.id}>`
         }).catch(() => {});
 
         if (playersInGame.length === 2) {
