@@ -170,7 +170,7 @@ async function startMatch(channel) {
             files: [{ attachment: gifPath, name: "spin.gif" }] 
         });
 
-        await new Promise(resolve => setTimeout(resolve, 4500)); 
+        await new Promise(resolve => setTimeout(resolve, 6000)); 
 
         // تثبيت العجلة وتحويل النص لإعلان الفائز دون إخفاء الحجم الطبيعي
         await wheelMsg.edit({ 
