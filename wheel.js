@@ -43,15 +43,17 @@ async function spinWheel(players) {
         colors.push(`hsl(${hue}, 45%, 55%)`);
     }
 
-    const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+   const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+
+    // 🚀 تم نقل الكانفاس والـ context هنا لمرة واحدة فقط لتسريع المعالجة بشكل جنوني
+    const canvas = createCanvas(size, size);
+    const ctx = canvas.getContext("2d");
+    
+    ctx.patternQuality = 'best';
+    ctx.quality = 'best';
+    ctx.imageSmoothingEnabled = true;
 
     for (let i = 0; i < frames; i++) {
-        const canvas = createCanvas(size, size);
-        const ctx = canvas.getContext("2d");
-        
-        ctx.patternQuality = 'best';
-        ctx.quality = 'best';
-        ctx.imageSmoothingEnabled = true;
 
         const progress = i / (frames - 1);
         const rotation = finalRotation * easeOutCubic(progress);
