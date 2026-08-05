@@ -8,12 +8,12 @@ registerFont(path.join(__dirname, 'font.ttf'), { family: 'MyGlobalFont' });
 async function spinWheel(players) {
     const numPlayers = players.length;
 
-    let rawSize = 1200 + (Math.pow(numPlayers / 150, 0.85) * 400);
-    let size = Math.round(Math.min(Math.max(rawSize, 1200), 1600));
+    let rawSize = 900 + (Math.pow(numPlayers / 150, 0.85) * 400);
+    let size = Math.round(Math.min(Math.max(rawSize, 900), 1400));
 
-    const fontSize = Math.max(20, Math.round(size * 0.038)); 
+    const fontSize = Math.max(16, Math.round(size * 0.038)); 
     const textOffset = Math.round(size * 0.08);
-    const borderSize = Math.max(6, Math.round(size * 0.007)); 
+    const borderSize = Math.max(5, Math.round(size * 0.007)); 
 
     const gifPath = path.join(__dirname, "spin.gif");
     const encoder = new (require("gif-encoder-2"))(size, size);
@@ -29,14 +29,16 @@ async function spinWheel(players) {
     const winner = players[winnerIndex];
     const slice = (Math.PI * 2) / numPlayers;
     
-    const finalRotation = (Math.PI * 2 * 5) - (winnerIndex * slice) - (slice / 2);
-    const frames = 120;
+    // ضبط زاوية الدوران الصحيحة لتتطابق مع مكان السهم على اليمين تماماً
+    const finalRotation = (Math.PI * 2 * 4) - (winnerIndex * slice) - (slice / 2) - (Math.PI / 2);
+    const frames = 100;
     
     const nameLimit = numPlayers > 50 ? 11 : (numPlayers > 20 ? 13 : 16);
     const names = players.map(p => {
         return (p.displayName || "Player").substring(0, nameLimit);
     });
     
+    // ألوان هادئة ومريحة
     const colors = [];
     for (let c = 0; c < numPlayers; c++) {
         const hue = Math.round((c * 360) / numPlayers);
@@ -48,18 +50,14 @@ async function spinWheel(players) {
     for (let i = 0; i < frames; i++) {
         const canvas = createCanvas(size, size);
         const ctx = canvas.getContext("2d");
-        
-        ctx.patternQuality = 'best';
-        ctx.quality = 'best';
-        ctx.imageSmoothingEnabled = true;
-
         const progress = i / (frames - 1);
         const rotation = finalRotation * easeOutCubic(progress);
 
+        // ⬜ ملء خلفية الكانفاس بالكامل باللون الأبيض للقضاء على السواد نهائياً
         ctx.fillStyle = "#FFFFFF";
         ctx.fillRect(0, 0, size, size);
 
-        const radius = (size / 2) - 35;
+        const radius = (size / 2) - 20;
 
         ctx.save();
         ctx.translate(size / 2, size / 2);
@@ -74,6 +72,7 @@ async function spinWheel(players) {
             ctx.fillStyle = colors[j]; 
             ctx.fill();
             
+            // خطوط بيضاء فاصلة سميكة وواضحة
             ctx.strokeStyle = "#FFFFFF";
             ctx.lineWidth = borderSize;
             ctx.stroke();
@@ -89,6 +88,7 @@ async function spinWheel(players) {
         }
         ctx.restore();
 
+        // ⭕ إطار خارجي أبيض يحيط بالعجلة بالكامل
         ctx.beginPath();
         ctx.arc(size / 2, size / 2, radius, 0, Math.PI * 2);
         ctx.strokeStyle = "#FFFFFF";
@@ -100,17 +100,17 @@ async function spinWheel(players) {
         const arrowTipX = size - 35; 
         const arrowBaseX = size;     
         const arrowY = size / 2;
-        const arrowHeight = Math.round(size * 0.075); 
+        const arrowHeight = Math.round(size * 0.075);
 
         ctx.moveTo(arrowTipX, arrowY); 
         ctx.lineTo(arrowBaseX, arrowY - arrowHeight);
         ctx.lineTo(arrowBaseX, arrowY + arrowHeight);
         ctx.closePath();
         
-        ctx.fillStyle = "#FFFFFF"; 
+        ctx.fillStyle = "#FFD700";    
         ctx.fill();
-        ctx.strokeStyle = "#B0B0B0"; 
-        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.lineWidth = 2;
         ctx.stroke();
         ctx.restore();
 
