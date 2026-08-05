@@ -105,7 +105,7 @@ async function spinWheel(players) {
         const arrowTipX = size - 35; // رأس السهم يلامس الدائرة بدقة
         const arrowBaseX = size;     // قاعدة السهم تصل لآخر حافة الكانفاس لتكون ضخمة وواضحة
         const arrowY = size / 2;
-        const arrowHeight = Math.round(size * 0.075); // 🌟 حجم ضخم وبارز جداً مثل الصورة الثانية
+        const arrowHeight = Math.round(size * 0.100); // 🌟 حجم ضخم وبارز جداً مثل الصورة الثانية
 
         ctx.moveTo(arrowTipX, arrowY); 
         ctx.lineTo(arrowBaseX, arrowY - arrowHeight);

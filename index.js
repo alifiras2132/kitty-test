@@ -562,8 +562,7 @@ client.on("messageCreate", async (m) => {
                 return m.channel.send("❌ تم إلغاء جولة الروليت لعدم اكتمال عدد اللاعبين (لاعبين أو أكثر).");
         }
 
-        await m.channel.send("🔄 **جاري تجهيز عجلة الروليت...**").catch(() => {});
-
+        
           startMatch(m.channel);
     });
     }
