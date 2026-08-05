@@ -585,4 +585,4 @@ client.on("messageCreate", async (m) => {
     }
 });
 
-client.login(TOKEN);
+client.login(process.env.TOKEN);
