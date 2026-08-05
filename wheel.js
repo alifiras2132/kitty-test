@@ -8,7 +8,6 @@ registerFont(path.join(__dirname, 'font.ttf'), { family: 'MyGlobalFont' });
 async function spinWheel(players) {
     const numPlayers = players.length;
 
-    // رفع الدقة بشكل كبير جداً لضمان جودة فائقة وتفاصيل حادة
     let rawSize = 1200 + (Math.pow(numPlayers / 150, 0.85) * 400);
     let size = Math.round(Math.min(Math.max(rawSize, 1200), 1600));
 
@@ -23,16 +22,15 @@ async function spinWheel(players) {
     encoder.createReadStream().pipe(stream);
     encoder.start();
     encoder.setRepeat(-1); 
-    encoder.setDelay(30);
-    encoder.setQuality(1); // أقصى جودة ممكنة
+    encoder.setDelay(35);
+    encoder.setQuality(1); 
 
     const winnerIndex = Math.floor(Math.random() * numPlayers);
     const winner = players[winnerIndex];
     const slice = (Math.PI * 2) / numPlayers;
     
-    // 🎯 تصحيح زاوية التوقف بدقة لتقع في منتصف شريحة الفائز تماماً (وليس على الخط الفاصل)
     const finalRotation = (Math.PI * 2 * 5) - (winnerIndex * slice) - (slice / 2);
-    const frames = 120; // زيادة عدد الإطارات لسلاسة أكبر في الحركة
+    const frames = 120; // 🌟 ثبتناها على 120 فريم بالضبط مثل ما طلبت
     
     const nameLimit = numPlayers > 50 ? 11 : (numPlayers > 20 ? 13 : 16);
     const names = players.map(p => {
@@ -51,7 +49,6 @@ async function spinWheel(players) {
         const canvas = createCanvas(size, size);
         const ctx = canvas.getContext("2d");
         
-        // تحسين تنعيم الحواف (Anti-aliasing)
         ctx.patternQuality = 'best';
         ctx.quality = 'best';
         ctx.imageSmoothingEnabled = true;
@@ -59,11 +56,11 @@ async function spinWheel(players) {
         const progress = i / (frames - 1);
         const rotation = finalRotation * easeOutCubic(progress);
 
-        // خلفية بيضاء بالكامل
+        // خلفية بيضاء صافية للمحيط
         ctx.fillStyle = "#FFFFFF";
         ctx.fillRect(0, 0, size, size);
 
-        const radius = (size / 2) - 25;
+        const radius = (size / 2) - 35;
 
         ctx.save();
         ctx.translate(size / 2, size / 2);
@@ -93,30 +90,30 @@ async function spinWheel(players) {
         }
         ctx.restore();
 
-        // الإطار الخارجي الأبيض
+        // الإطار الخارجي الأبيض الدائري
         ctx.beginPath();
         ctx.arc(size / 2, size / 2, radius, 0, Math.PI * 2);
         ctx.strokeStyle = "#FFFFFF";
         ctx.lineWidth = borderSize;
         ctx.stroke();
 
-        // ◀️ السهم الصحيح تماماً: أبيض ناصع، يشير للداخل باتجاه الفائز، ومرتب مثل الصورة المطلوبة
+        // ◀️ السهم الكبير والواضح جداً (ضخم وبارز للخارج ومستحيل يضيع)
         ctx.save();
         ctx.beginPath();
-        const arrowTipX = size - 25; // رأس السهم متصل بحافة الدائرة
-        const arrowBaseX = size - 5;  // قاعدة السهم للخارج قليلاً
+        const arrowTipX = size - 35; 
+        const arrowBaseX = size;     
         const arrowY = size / 2;
-        const arrowHeight = Math.round(size * 0.035);
+        const arrowHeight = Math.round(size * 0.075); // حجم كبير وواضح تماماً
 
-        ctx.moveTo(arrowTipX, arrowY); // رأس السهم يشير لليسار (للداخل)
+        ctx.moveTo(arrowTipX, arrowY); 
         ctx.lineTo(arrowBaseX, arrowY - arrowHeight);
         ctx.lineTo(arrowBaseX, arrowY + arrowHeight);
         ctx.closePath();
         
-        ctx.fillStyle = "#FFFFFF"; // أبيض ناصع مثل المحيط
+        ctx.fillStyle = "#FFFFFF"; 
         ctx.fill();
-        ctx.strokeStyle = "#E0E0E0"; // إطار خفيف ونظيف جداً لزيادة وضوحه
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = "#B0B0B0"; 
+        ctx.lineWidth = 2.5;
         ctx.stroke();
         ctx.restore();
 
