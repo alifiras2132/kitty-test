@@ -30,7 +30,7 @@ async function spinWheel(players) {
     const slice = (Math.PI * 2) / numPlayers;
     
     const finalRotation = (Math.PI * 2 * 5) - (winnerIndex * slice) - (slice / 2);
-    const frames = 120; // 🌟 ثبتناها على 120 فريم بالضبط مثل ما طلبت
+    const frames = 120;
     
     const nameLimit = numPlayers > 50 ? 11 : (numPlayers > 20 ? 13 : 16);
     const names = players.map(p => {
@@ -56,7 +56,6 @@ async function spinWheel(players) {
         const progress = i / (frames - 1);
         const rotation = finalRotation * easeOutCubic(progress);
 
-        // خلفية بيضاء صافية للمحيط
         ctx.fillStyle = "#FFFFFF";
         ctx.fillRect(0, 0, size, size);
 
@@ -90,20 +89,18 @@ async function spinWheel(players) {
         }
         ctx.restore();
 
-        // الإطار الخارجي الأبيض الدائري
         ctx.beginPath();
         ctx.arc(size / 2, size / 2, radius, 0, Math.PI * 2);
         ctx.strokeStyle = "#FFFFFF";
         ctx.lineWidth = borderSize;
         ctx.stroke();
 
-        // ◀️ السهم الكبير والواضح جداً (ضخم وبارز للخارج ومستحيل يضيع)
         ctx.save();
         ctx.beginPath();
         const arrowTipX = size - 35; 
         const arrowBaseX = size;     
         const arrowY = size / 2;
-        const arrowHeight = Math.round(size * 0.075); // حجم كبير وواضح تماماً
+        const arrowHeight = Math.round(size * 0.075); 
 
         ctx.moveTo(arrowTipX, arrowY); 
         ctx.lineTo(arrowBaseX, arrowY - arrowHeight);
