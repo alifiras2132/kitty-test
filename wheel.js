@@ -8,12 +8,12 @@ registerFont(path.join(__dirname, 'font.ttf'), { family: 'MyGlobalFont' });
 async function spinWheel(players) {
     const numPlayers = players.length;
 
-    let rawSize = 900 + (Math.pow(numPlayers / 150, 0.85) * 400);
-    let size = Math.round(Math.min(Math.max(rawSize, 900), 1400));
+    let rawSize = 1200 + (Math.pow(numPlayers / 150, 0.85) * 400);
+    let size = Math.round(Math.min(Math.max(rawSize, 1200), 1600));
 
-    const fontSize = Math.max(16, Math.round(size * 0.038)); 
+    const fontSize = Math.max(20, Math.round(size * 0.038)); 
     const textOffset = Math.round(size * 0.08);
-    const borderSize = Math.max(5, Math.round(size * 0.007)); 
+    const borderSize = Math.max(6, Math.round(size * 0.007)); 
 
     const gifPath = path.join(__dirname, "spin.gif");
     const encoder = new (require("gif-encoder-2"))(size, size);
@@ -29,16 +29,14 @@ async function spinWheel(players) {
     const winner = players[winnerIndex];
     const slice = (Math.PI * 2) / numPlayers;
     
-    // ضبط زاوية الدوران الصحيحة لتتطابق مع مكان السهم على اليمين تماماً
-    const finalRotation = (Math.PI * 2 * 4) - (winnerIndex * slice) - (slice / 2) - (Math.PI / 2);
-    const frames = 100;
+    const finalRotation = (Math.PI * 2 * 5) - (winnerIndex * slice) - (slice / 2);
+    const frames = 100; // 🌟 رجعناها 100 فريم مثل ما طلبت لسرعة طبيعية وسلسة
     
     const nameLimit = numPlayers > 50 ? 11 : (numPlayers > 20 ? 13 : 16);
     const names = players.map(p => {
         return (p.displayName || "Player").substring(0, nameLimit);
     });
     
-    // ألوان هادئة ومريحة
     const colors = [];
     for (let c = 0; c < numPlayers; c++) {
         const hue = Math.round((c * 360) / numPlayers);
@@ -50,14 +48,19 @@ async function spinWheel(players) {
     for (let i = 0; i < frames; i++) {
         const canvas = createCanvas(size, size);
         const ctx = canvas.getContext("2d");
+        
+        ctx.patternQuality = 'best';
+        ctx.quality = 'best';
+        ctx.imageSmoothingEnabled = true;
+
         const progress = i / (frames - 1);
         const rotation = finalRotation * easeOutCubic(progress);
 
-        // ⬜ ملء خلفية الكانفاس بالكامل باللون الأبيض للقضاء على السواد نهائياً
+        // خلفية بيضاء صافية
         ctx.fillStyle = "#FFFFFF";
         ctx.fillRect(0, 0, size, size);
 
-        const radius = (size / 2) - 20;
+        const radius = (size / 2) - 35; // 🌟 صغرنا الدائرة قليلاً لإعطاء مساحة أوسع وواضحة للسهم الخارجي
 
         ctx.save();
         ctx.translate(size / 2, size / 2);
@@ -72,7 +75,6 @@ async function spinWheel(players) {
             ctx.fillStyle = colors[j]; 
             ctx.fill();
             
-            // خطوط بيضاء فاصلة سميكة وواضحة
             ctx.strokeStyle = "#FFFFFF";
             ctx.lineWidth = borderSize;
             ctx.stroke();
@@ -88,29 +90,30 @@ async function spinWheel(players) {
         }
         ctx.restore();
 
-        // ⭕ إطار خارجي أبيض يحيط بالعجلة بالكامل
+        // الإطار الخارجي الأبيض
         ctx.beginPath();
         ctx.arc(size / 2, size / 2, radius, 0, Math.PI * 2);
         ctx.strokeStyle = "#FFFFFF";
         ctx.lineWidth = borderSize;
         ctx.stroke();
 
+        // ◀️ السهم الكبير جداً والواضح والبارز للخارج (مطابق تماماً للصورة الثانية وكبير ومستحيل ما تنتبه له)
         ctx.save();
         ctx.beginPath();
-        const arrowTipX = size - 35; 
-        const arrowBaseX = size;     
+        const arrowTipX = size - 35; // رأس السهم يلامس الدائرة بدقة
+        const arrowBaseX = size;     // قاعدة السهم تصل لآخر حافة الكانفاس لتكون ضخمة وواضحة
         const arrowY = size / 2;
-        const arrowHeight = Math.round(size * 0.075);
+        const arrowHeight = Math.round(size * 0.075); // 🌟 حجم ضخم وبارز جداً مثل الصورة الثانية
 
         ctx.moveTo(arrowTipX, arrowY); 
         ctx.lineTo(arrowBaseX, arrowY - arrowHeight);
         ctx.lineTo(arrowBaseX, arrowY + arrowHeight);
         ctx.closePath();
         
-        ctx.fillStyle = "#FFD700";    
+        ctx.fillStyle = "#FFFFFF"; 
         ctx.fill();
-        ctx.strokeStyle = "#FFFFFF";
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#B0B0B0"; // إطار رمادي فاتح وواضح لكي يبرز السهم تماماً عن خلفية الديسكورد البيضاء
+        ctx.lineWidth = 2.5;
         ctx.stroke();
         ctx.restore();
 
