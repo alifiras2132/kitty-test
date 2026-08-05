@@ -1,75 +1,108 @@
-const { EmbedBuilder } = require("discord.js");
+const { createCanvas, registerFont } = require("canvas");
+const GIFEncoder = "gif-encoder-2" in require ? require("gif-encoder-2") : require("gif-encoder-2");
+const fs = require("fs");
+const path = require("path");
 
-const activeGames = new Map();
-const channelLocks = new Set();
+// تسجيل الخط (تأكد أن ملف font.ttf هو خط Noto Sans Arabic)
+registerFont(path.join(__dirname, 'font.ttf'), { family: 'MyGlobalFont' });
 
-module.exports = {
-    lock: (channelId) => channelLocks.add(channelId),
-    unlock: (channelId) => channelLocks.delete(channelId),
-    isLocked: (channelId) => channelLocks.has(channelId),
+async function spinWheel(players) {
+    const numPlayers = players.length;
 
-    createGame: (channelId, hostId, msgId) => {
-        activeGames.set(channelId, {
-            hostId,
-            messageId: msgId,
-            players: [],
-            started: false
-        });
-    },
+    // 🌟 معادلة التدرج الخرافي والمرن للحجم
+    let rawSize = 600 + (Math.pow(numPlayers / 150, 0.85) * 600);
+    let size = Math.round(Math.min(Math.max(rawSize, 600), 1200));
 
-    getGame: (channelId) => activeGames.get(channelId),
-    deleteGame: (channelId) => activeGames.delete(channelId),
-    startGameFlag: (channelId) => {
-        const g = activeGames.get(channelId);
-        if (g) g.started = true;
-    },
+    const fontSize = Math.max(11, Math.round(size * 0.025));
+    const textOffset = Math.round(size * 0.065);
+    const borderSize = Math.max(2, Math.round(size * 0.0025));
 
-    addPlayer: (channelId, user) => {
-        const game = activeGames.get(channelId);
-        if (!game || game.started) return false;
-        
-        // ✅ تم تحديث الحد الأقصى هنا ليكون 25 لاعب بناءً على طلبك
-        if (game.players.length >= 25) return false; 
-        if (game.players.some(p => p.id === user.id)) return false;
+    const gifPath = path.join(__dirname, "spin.gif");
+    const encoder = new (require("gif-encoder-2"))(size, size);
+    const stream = fs.createWriteStream(gifPath);
 
-        game.players.push(user);
-        return true;
-    },
+    encoder.createReadStream().pipe(stream);
+    encoder.start();
+    encoder.setRepeat(-1); 
+    encoder.setDelay(40);
+    encoder.setQuality(10); 
 
-    buildLobbyEmbed: (players, timeLeft, imageUrl) => {
-        const playerList = players.length > 0 
-            ? players.map((p, idx) => `**${idx + 1}.** <@${p.id}> (\`${p.displayName}\`)`).join("\n")
-            : "⏳ في انتظار دخول الضحايا...";
-
-        return new EmbedBuilder()
-            .setColor("#F1C40F")
-            .setTitle("🎯 إستعدوا لجولة الروليت الروسية - Russian Roulette")
-            .setDescription(
-`🔥 **قوانين الموت:** العجلة تدور وتختار الجلاد، والجلاد يملك السلاح ليختار ضحية واحدة ويقضي عليها فوراً عبر الأزرار الحمراء!
-
-⏱️ **الوقت المتبقي لبدء الجولة:** \`${timeLeft}\` ثانية.
-👥 **اللاعبين المسجلين حالياً (${players.length}/25):** ${playerList}`
-            )
-            .setImage(imageUrl) 
-            .setFooter({ text: "تأكد من زيارة المتجر قبل بدء الجولة لشراء الدروع الحامية!" })
-            .setTimestamp();
-    },
-
-    buildShopEmbed: (userCoins) => {
-        return new EmbedBuilder()
-            .setColor("#3498DB")
-            .setTitle("🛒 متجر أدوات الروليت السرية")
-            .setDescription(
-`مرحباً بك في السوق السوداء! استخدم كوينزاتك بحكمة لتأمين نفسك في الجولة القادمة:
-
-🛡️ **درع الحماية (60 كوينز):**
-إذا اختارك الجلاد للإقصاء، سيتم تفعيل الدرع تلقائياً وتنجو من الموت لمرة واحدة!
-
-🔁 **الموجة المرتدة (80 كوينز):**
-إذا حاول الجلاد إقصاءك، ستعكس الرصاصة عليه فوراً ويتم إقصاء الجلاد بدلاً منك!
-
-💰 **رصيدك الحالي:** \`${userCoins}\` كوينز.`
-            )
-            .setFooter({ text: "تنبيه: تنتهي صلاحية الأدوات بنهاية الجولة الحالية سواء تم تفعيلها أم لا." });
+    const winnerIndex = Math.floor(Math.random() * numPlayers);
+    const winner = players[winnerIndex];
+    const slice = (Math.PI * 2) / numPlayers;
+    const finalRotation = (Math.PI * 2 * 4) - (winnerIndex * slice) - (slice / 2) - (Math.PI / 2);
+    const frames = 100;
+    
+    const nameLimit = numPlayers > 50 ? 11 : (numPlayers > 20 ? 13 : 15);
+    const names = players.map(p => {
+        return (p.displayName || "Player").substring(0, nameLimit);
+    });
+    
+    // 🎨 توليد ألوان فريدة وحيوية موزعة على دائرة الألوان (HSL) لكل لاعب لضمان التنوع البصري الهائل
+    const colors = [];
+    for (let c = 0; c < numPlayers; c++) {
+        const hue = Math.round((c * 360) / numPlayers);
+        // نثبت السطوع والإضاءة حتى تكون الألوان زاهية وواضحة وليست مظلمة أو باهتة
+        colors.push(`hsl(${hue}, 75%, 50%)`);
     }
-};
+
+    const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+
+    for (let i = 0; i < frames; i++) {
+        const canvas = createCanvas(size, size);
+        const ctx = canvas.getContext("2d");
+        const progress = i / (frames - 1);
+        const rotation = finalRotation * easeOutCubic(progress);
+
+        ctx.clearRect(0, 0, size, size);
+        
+        ctx.save();
+        ctx.translate(size / 2, size / 2);
+        ctx.rotate(rotation);
+
+        for (let j = 0; j < numPlayers; j++) {
+            const angle = j * slice;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.arc(0, 0, (size / 2) - 15, angle, angle + slice);
+            ctx.closePath();
+            ctx.fillStyle = colors[j]; // استخدام اللون الفريد الخاص بهذا اللاعب
+            ctx.fill();
+            ctx.strokeStyle = "#FFFFFF";
+            ctx.lineWidth = borderSize;
+            ctx.stroke();
+
+            ctx.save();
+            ctx.rotate(angle + slice / 2);
+            ctx.fillStyle = "white";
+            ctx.font = `bold ${fontSize}px "MyGlobalFont"`; 
+            ctx.textAlign = "right";
+            ctx.textBaseline = 'middle';
+            ctx.fillText(names[j], (size / 2) - textOffset, 0);
+            ctx.restore();
+        }
+        ctx.restore();
+
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0); 
+        ctx.beginPath();
+        const arrowY = Math.round(size * 0.015);
+        const arrowTip = Math.round(size * 0.06);
+        const arrowWidth = Math.round(size * 0.018);
+
+        ctx.moveTo(size / 2 - arrowWidth, arrowY); 
+        ctx.lineTo(size / 2 + arrowWidth, arrowY); 
+        ctx.lineTo(size / 2, arrowTip);      
+        ctx.closePath();
+        ctx.fillStyle = "#FFD700";    
+        ctx.fill();
+        ctx.restore();
+
+        encoder.addFrame(ctx);
+    }
+    encoder.finish();
+    await new Promise(res => stream.on("finish", res));
+    return { winner, gifPath };
+}
+
+module.exports = { spinWheel };
