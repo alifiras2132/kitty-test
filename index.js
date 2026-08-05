@@ -170,7 +170,7 @@ async function startMatch(channel) {
             files: [{ attachment: gifPath, name: "spin.gif" }] 
         });
 
-        await new Promise(resolve => setTimeout(resolve, 4500)); 
+        await new Promise(resolve => setTimeout(resolve, 5500)); 
 
         // تثبيت العجلة وتحويل النص لإعلان الفائز دون إخفاء الحجم الطبيعي
         await wheelMsg.edit({ 
@@ -559,10 +559,13 @@ client.on("messageCreate", async (m) => {
             if (!finalGame || finalGame.players.length < 2) {
                 gameManager.deleteGame(m.channel.id);
                 gameManager.unlock(m.channel.id);
-                return m.channel.send("❌ تم إلغاء جولة الروليت التلقائية لعدم اكتمال النصاب (لاعبين أو أكثر).");
-            }
-            startMatch(m.channel);
-        });
+                return m.channel.send("❌ تم إلغاء جولة الروليت لعدم اكتمال عدد اللاعبين (لاعبين أو أكثر).");
+        }
+
+        await m.channel.send("🔄 **جاري تجهيز عجلة الروليت...**").catch(() => {});
+
+          startMatch(m.channel);
+    });
     }
 
     // ==========================================
