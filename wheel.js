@@ -3,7 +3,6 @@ const GIFEncoder = "gif-encoder-2" in require ? require("gif-encoder-2") : requi
 const fs = require("fs");
 const path = require("path");
 
-// تسجيل الخط (تأكد أن ملف font.ttf هو خط Noto Sans Arabic)
 registerFont(path.join(__dirname, 'font.ttf'), { family: 'MyGlobalFont' });
 
 async function spinWheel(players) {
@@ -14,7 +13,7 @@ async function spinWheel(players) {
 
     const fontSize = Math.max(16, Math.round(size * 0.038)); 
     const textOffset = Math.round(size * 0.08);
-    const borderSize = Math.max(4, Math.round(size * 0.006)); // سمك الخط الأبيض الفاصل بين الأقسام
+    const borderSize = Math.max(5, Math.round(size * 0.007)); // خط أبيض سميك وواضح
 
     const gifPath = path.join(__dirname, "spin.gif");
     const encoder = new (require("gif-encoder-2"))(size, size);
@@ -29,7 +28,9 @@ async function spinWheel(players) {
     const winnerIndex = Math.floor(Math.random() * numPlayers);
     const winner = players[winnerIndex];
     const slice = (Math.PI * 2) / numPlayers;
-    const finalRotation = (Math.PI * 2 * 4) - (winnerIndex * slice) - (slice / 2) - (Math.PI / 2);
+    
+    // ضبط زاوية التوقف بحيث يكون السهم على اليمين تماماً مثل الصورة الثانية
+    const finalRotation = (Math.PI * 2 * 4) - (winnerIndex * slice) - (slice / 2);
     const frames = 100;
     
     const nameLimit = numPlayers > 50 ? 11 : (numPlayers > 20 ? 13 : 16);
@@ -37,10 +38,11 @@ async function spinWheel(players) {
         return (p.displayName || "Player").substring(0, nameLimit);
     });
     
+    // 🎨 ألوان هادئة وغير فاقعة (قللنا السطوع لتبدو مثل الصورة الثانية)
     const colors = [];
     for (let c = 0; c < numPlayers; c++) {
         const hue = Math.round((c * 360) / numPlayers);
-        colors.push(`hsl(${hue}, 80%, 52%)`);
+        colors.push(`hsl(${hue}, 45%, 55%)`);
     }
 
     const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
@@ -53,26 +55,23 @@ async function spinWheel(players) {
 
         ctx.clearRect(0, 0, size, size);
 
-        // خلفية بيضاء دائرية متناسقة
-        ctx.fillStyle = "#FFFFFF";
-        ctx.beginPath();
-        ctx.arc(size / 2, size / 2, size / 2 - 5, 0, Math.PI * 2);
-        ctx.fill();
-        
+        // إزالة السواد وجعل حدود الكانفاس نظيفة
         ctx.save();
         ctx.translate(size / 2, size / 2);
         ctx.rotate(rotation);
+
+        const radius = (size / 2) - 10;
 
         for (let j = 0; j < numPlayers; j++) {
             const angle = j * slice;
             ctx.beginPath();
             ctx.moveTo(0, 0);
-            ctx.arc(0, 0, (size / 2) - 10, angle, angle + slice);
+            ctx.arc(0, 0, radius, angle, angle + slice);
             ctx.closePath();
             ctx.fillStyle = colors[j]; 
             ctx.fill();
             
-            // رسم خط أبيض واضح ومرتب يفصل بين الأقسام
+            // خط أبيض فاصِل سميك ونظيف بين الأقسام
             ctx.strokeStyle = "#FFFFFF";
             ctx.lineWidth = borderSize;
             ctx.stroke();
@@ -83,29 +82,34 @@ async function spinWheel(players) {
             ctx.font = `bold ${fontSize}px "MyGlobalFont"`; 
             ctx.textAlign = "right";
             ctx.textBaseline = 'middle';
-            ctx.fillText(names[j], (size / 2) - textOffset, 0);
+            ctx.fillText(names[j], radius - textOffset, 0);
             ctx.restore();
         }
         ctx.restore();
 
-        // 🔽 سهم أبيض مرتب وبتصميم نظيف تماماً مثل الصورة المطلوبة
-        ctx.save();
-        ctx.setTransform(1, 0, 0, 1, 0, 0); 
+        // 🎯 رسم الإطار الخارجي الأبيض الدائري للعجلة بالكامل (مثل الصورة الثانية)
         ctx.beginPath();
-        const arrowY = Math.round(size * 0.015);
-        const arrowTip = Math.round(size * 0.06);
-        const arrowWidth = Math.round(size * 0.02);
+        ctx.arc(size / 2, size / 2, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.lineWidth = borderSize;
+        ctx.stroke();
 
-        ctx.moveTo(size / 2 - arrowWidth, arrowY); 
-        ctx.lineTo(size / 2 + arrowWidth, arrowY); 
-        ctx.lineTo(size / 2, arrowTip);      
+        // ◀️ تصميم السهم على الجانب الأيمن وبشكل بارز ومرتب تماماً مثل الصورة الثانية
+        ctx.save();
+        ctx.beginPath();
+        const arrowX = size - 5;
+        const arrowY = size / 2;
+        const arrowSize = Math.round(size * 0.035);
+
+        ctx.moveTo(arrowX, arrowY);
+        ctx.lineTo(arrowX - (arrowSize * 1.8), arrowY - arrowSize);
+        ctx.lineTo(arrowX - (arrowSize * 1.8), arrowY + arrowSize);
         ctx.closePath();
-        ctx.fillStyle = "#FFFFFF"; // سهم أبيض بالكامل
-        ctx.fill();
         
-        // إطار خفيف للسهم لزيادة بروزه ونظافته
-        ctx.strokeStyle = "#E0E0E0";
-        ctx.lineWidth = 1.5;
+        ctx.fillStyle = "#FFFFFF"; // سهم أبيض بالكامل ونظيف
+        ctx.fill();
+        ctx.strokeStyle = "#CCCCCC";
+        ctx.lineWidth = 2;
         ctx.stroke();
         ctx.restore();
 
