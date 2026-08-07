@@ -1,7 +1,7 @@
 const {
     Client,
     GatewayIntentBits,
-    EmbedBuilder,
+    EmbedBuilder, AttachmentBuilder,
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
@@ -472,10 +472,14 @@ client.on("messageCreate", async (m) => {
 
         let timeLeft = 60;
         
-        const signupMsg = await m.channel.send({
+        // تعريف الملف
+    const file = new AttachmentBuilder('./lobby.gif');
+
+    // إرسال الرسالة مرة واحدة فقط
+    const signupMsg = await m.channel.send({
         content: `⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${game.players.length}\``,
         components: [row],
-        files: [{ attachment: "./lobby.png", name: "lobby.png" }]
+        files: [file]
     });
         game.messageId = signupMsg.id;
 
