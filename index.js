@@ -478,12 +478,11 @@ client.on("messageCreate", async (m) => {
         );
 
         let timeLeft = 60;
-       const file = new AttachmentBuilder('./lobby.gif');
-  const signupMsg = await m.channel.send({
-        content: `⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${game.players.length}\``,
-        components: [row],
-        files: [file]
-    });
+       const signupMsg = await m.channel.send({
+            content: `⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${game.players.length}\``,
+            components: [row],
+            files: ['./lobby.gif']
+        });
         game.messageId = signupMsg.id;
 
         const countdownInterval = setInterval(async () => {
