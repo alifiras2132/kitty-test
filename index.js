@@ -184,11 +184,9 @@ async function startMatch(channel) {
 
             const winEmbed = new EmbedBuilder()
                 .setColor("#FFD700")
-                .setTitle("👑 بطل الطاولة النهائي 👑")
+                .setTitle("👑 البطل النهائي 👑")
                 .setDescription(
 `🥇 **الفائز:** <@${winner.id}>
-💀 **الضحية الأخيرة:** <@${loser.id}>
-
 💰 **الجائزة:** \`+25\` كوينز!
 📊 **مجموع الانتصارات:** \`${fData.wins}\` فوز.`
                 )
@@ -247,7 +245,7 @@ async function startMatch(channel) {
             playersInGame = playersInGame.filter(p => p.id !== winner.id);
             await collected.update({ components: [] });
             await msg.delete().catch(() => {});
-            await channel.send({ content: `🏳️ قرر <@${winner.id}> الانسحاب من الطاولة وخرج من اللعبة!` });
+            await channel.send({ content: `🏳️ قرر <@${winner.id}> الانسحاب وخرج من اللعبة!` });
             await new Promise(resolve => setTimeout(resolve, 1500));
             continue;
         } 
