@@ -462,6 +462,7 @@ client.on("messageCreate", async (m) => {
     // 🎡 لعبة الروليت التلقائية (+روليت)
     // ==========================================
     if (command === "روليت") {
+        console.log("تم استلام أمر روليت بنجاح!");
         gameManager.lock(m.channel.id);
         gameManager.createGame(m.channel.id, m.author.id, null);
         const game = gameManager.getGame(m.channel.id);
