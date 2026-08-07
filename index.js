@@ -161,13 +161,11 @@ async function startMatch(channel) {
     gameManager.startGameFlag(channel.id);
     let playersInGame = [...game.players];
 
-    // ✅ إرسال رسالة انتهاء التسجيل وبدء الجولة الأولى قبل بدء العجلة الأولى
     await channel.send({ content: "✅ | تم الانتهاء من تسجيل الادوار ، ستبدأ الجولة الاولى بعد قليل..." });
     await new Promise(resolve => setTimeout(resolve, 2000)); 
 
     while (playersInGame.length > 1) {
         
-        // 🏆 إذا أصبح عدد اللاعبين 2 (الجولة الحاسمة الأخيرة)
         const isFinalRound = (playersInGame.length === 2);
 
         if (isFinalRound) {
@@ -177,17 +175,23 @@ async function startMatch(channel) {
 
         const { winner, gifPath } = await spinWheel(playersInGame);
         
-        // 1. إرسال العجلة: إذا كانت جولة أخيرة نضع المنشن مباشرة بدون جملة 15 ثانية، وإذا كانت عادية نضع جملة الطرد
-        const wheelContent = isFinalRound ? `<@${winner.id}>` : `<@${winner.id}>، لديك 15 ثانية لإختيار شخص لطرده.`;
-
+        // 1. إرسال العجلة برسالة "تدور العجلة الآن..." أولاً
         const wheelMsg = await channel.send({ 
-            content: wheelContent,
+            content: "🎡 **تدور العجلة الآن...**",
             files: [{ attachment: gifPath, name: "spin.gif" }] 
         });
 
+        // 2. الانتظار حتى تتوقف العجلة (التزامن)
         await new Promise(resolve => setTimeout(resolve, 2000)); 
 
-        // 2. إذا كانت جولة نهائية (لاعبين اثنين): لا نحتاج أزرار ولا طرد، نعلن الفائز وننهي اللعبة فوراً
+        // 3. الآن بعد توقفها، نعدل الرسالة بالمنشن والنص المطلوب
+        const finalContent = isFinalRound 
+            ? `🎉 | مبروك الفوز في اللعبة <@${winner.id}>` 
+            : `<@${winner.id}>، لديك 15 ثانية لإختيار شخص لطرده.`;
+            
+        await wheelMsg.edit({ content: finalContent }).catch(() => {});
+
+        // 4. إذا كانت جولة أخيرة: نعلن الفوز وننتهي
         if (isFinalRound) {
             const fData = player(winner.id);
             fData.coins += 25; fData.wins += 1; update(winner.id, fData);
@@ -206,7 +210,7 @@ async function startMatch(channel) {
             break; 
         }
 
-        // 3. إذا كان عدد اللاعبين أكثر من 2: تجهيز وإرسال الأزرار في الأسفل
+        // 5. للأدوار العادية: تجهيز وإرسال الأزرار
         const targets = playersInGame.filter(p => p.id !== winner.id);
         const rows = [];
         let currentRow = new ActionRowBuilder();
