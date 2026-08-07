@@ -528,7 +528,16 @@ if (m.content.trim() === "ق روليت") {
        const lobbyFile = new AttachmentBuilder('./lobby.gif');
 
         const signupMsg = await m.channel.send({
-            content: `⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${game.players.length}\``,
+            
+content: `**__شرح اللعبة:__**
+1- انضم للعبة عبر الزر الأخضر في الأسفل.
+2- تدور العجلة كل جولة وتختار لاعباً.
+3- اللاعب المختار يمكنه طرد لاعب، ينسحب، أو يستخدم خاصية من حقيبته.
+4- في آخر جولة تدور فيها العجلة، من يتم اختياره يفوز باللعبة.
+
+---
+⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${game.players.length}\``,
+
             components: [row],
             files: [lobbyFile]
         });
