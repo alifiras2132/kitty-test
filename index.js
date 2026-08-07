@@ -165,7 +165,6 @@ async function startMatch(channel) {
     await new Promise(resolve => setTimeout(resolve, 2000)); 
 
     while (playersInGame.length > 1) {
-        
         const isFinalRound = (playersInGame.length === 2);
 
         if (isFinalRound) {
@@ -175,23 +174,19 @@ async function startMatch(channel) {
 
         const { winner, gifPath } = await spinWheel(playersInGame);
         
-        // 1. إرسال العجلة برسالة "تدور العجلة الآن..." أولاً
         const wheelMsg = await channel.send({ 
             content: "🎡 **تدور العجلة الآن...**",
             files: [{ attachment: gifPath, name: "spin.gif" }] 
         });
 
-        // 2. الانتظار حتى تتوقف العجلة (التزامن)
         await new Promise(resolve => setTimeout(resolve, 2000)); 
 
-        // 3. الآن بعد توقفها، نعدل الرسالة بالمنشن والنص المطلوب
         const finalContent = isFinalRound 
             ? `🎉 | مبروك الفوز في اللعبة <@${winner.id}>` 
             : `<@${winner.id}>، لديك 15 ثانية لإختيار شخص لطرده.`;
             
         await wheelMsg.edit({ content: finalContent }).catch(() => {});
 
-        // 4. إذا كانت جولة أخيرة: نعلن الفوز وننتهي
         if (isFinalRound) {
             const fData = player(winner.id);
             fData.coins += 25; fData.wins += 1; update(winner.id, fData);
@@ -210,7 +205,6 @@ async function startMatch(channel) {
             break; 
         }
 
-        // 5. للأدوار العادية: تجهيز وإرسال الأزرار
         const targets = playersInGame.filter(p => p.id !== winner.id);
         const rows = [];
         let currentRow = new ActionRowBuilder();
@@ -242,11 +236,19 @@ async function startMatch(channel) {
                 time: 15000 
             });
         } catch (err) {
+            // تعطيل الأزرار بدلاً من حذفها عند انتهاء الوقت
+            const disabledRows = msg.components.map(row => ActionRowBuilder.from(row).setComponents(row.components.map(c => ButtonBuilder.from(c).setDisabled(true))));
+            await msg.edit({ components: disabledRows }).catch(() => {});
+            
             playersInGame = playersInGame.filter(p => p.id !== winner.id);
             await channel.send({ content: `⚠️ | تم طرد <@${winner.id}> من اللعبة لعدم التفاعل ، ستبدأ الجولة التالية بعد قليل...` });
-            await msg.edit({ components: [] }).catch(() => {});
+            await new Promise(resolve => setTimeout(resolve, 400));
             continue;
         }
+
+        // تعطيل الأزرار بدلاً من حذفها عند اختيار قرار
+        const disabledRows = msg.components.map(row => ActionRowBuilder.from(row).setComponents(row.components.map(c => ButtonBuilder.from(c).setDisabled(true))));
+        await collected.update({ components: disabledRows });
 
         let targetId;
         let isRandom = false;
@@ -258,8 +260,6 @@ async function startMatch(channel) {
         } 
         else if (collected.customId === "kick_leave") {
             playersInGame = playersInGame.filter(p => p.id !== winner.id);
-            await collected.update({ components: [] });
-            await msg.delete().catch(() => {});
             await channel.send({ content: `🏳️ | قرر <@${winner.id}> الانسحاب و خرج من اللعبة، ستبدأ الجولة التالية بعد قليل...` });
             await new Promise(resolve => setTimeout(resolve, 400));
             continue;
@@ -272,8 +272,6 @@ async function startMatch(channel) {
 
         if (targetData.shield > 0) {
             targetData.shield = 0; update(targetId, targetData);
-            await collected.update({ components: [] });
-            await msg.delete().catch(() => {});
             await channel.send({ content: `🛡️ | حاول <@${winner.id}> طرد <@${targetId}> ولكنه نجا بفضل خاصية الحماية` });
             await new Promise(resolve => setTimeout(resolve, 400));
             continue;
@@ -282,8 +280,6 @@ async function startMatch(channel) {
         if (targetData.reflect > 0) {
             targetData.reflect = 0; update(targetId, targetData);
             playersInGame = playersInGame.filter(p => p.id !== winner.id);
-            await collected.update({ components: [] });
-            await msg.delete().catch(() => {});
             await channel.send({ content: `🔁 | حاول <@${winner.id}> طرد <@${targetId}> ولكن ارتدت عليه الهجمة و تم طرده` });
             await new Promise(resolve => setTimeout(resolve, 400));
             continue;
@@ -295,9 +291,6 @@ async function startMatch(channel) {
         pData.xp += 50;
         if (pData.xp >= pData.level * 150) { pData.level++; pData.xp = 0; } 
         update(winner.id, pData);
-
-        await collected.update({ components: [] });
-        await msg.delete().catch(() => {});
 
         if (isRandom) {
             await channel.send({ content: `🎲 | تم طرد <@${targetId}> من اللعبة بشكل عشوائي، ستبدأ الجولة التالية بعد قليل...` });
