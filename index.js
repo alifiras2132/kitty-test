@@ -10,8 +10,7 @@ const {
 
 const fs = require("fs");
 const gameManager = require("./gamemanager.js");
-const { spinWheel } = require("./wheel.js");
-
+const { spinWheel } = require('./wheel.js');
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -545,17 +544,23 @@ content: `${gameRules}
         game.messageId = signupMsg.id;
 
         const countdownInterval = setInterval(async () => {
-            timeLeft -= 1;
-            if (timeLeft <= 0) {
+        timeLeft -= 1;
+        if (timeLeft <= 0) {
             clearInterval(countdownInterval);
-            await signupMsg.edit({ content: `🔒 **انتهى وقت التسجيل! تبدأ جولة الروليت الآن...**`, components: [] }).catch(() => {});
+const { winner, gifPath } = await spinWheel(game.players);
+await signupMsg.edit({ 
+    content: `🎡 **...انتهى وقت التسجيل! تبدأ الروليت الآن**`, 
+    files: [gifPath], 
+    components: [] 
+}).catch(() => {});
         } else {
             const currentGame = gameManager.getGame(m.channel.id);
             const count = currentGame ? currentGame.players.length : 0;
-            await signupMsg.edit({ content: `${gameRules}
-⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${count}\`` }).catch(() => {});
+            await signupMsg.edit({ 
+                content: `${gameRules}\n⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${count}\`` 
+            }).catch(() => {});
         }
-        }, 1000);
+    }, 1000);
 
         const collector = signupMsg.createMessageComponentCollector({ time: 60000 });
 
