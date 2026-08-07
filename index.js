@@ -527,15 +527,15 @@ if (m.content.trim() === "ق روليت") {
         let timeLeft = 60;
        const lobbyFile = new AttachmentBuilder('./lobby.gif');
 
-        const signupMsg = await m.channel.send({
-            
-content: `**__شرح اللعبة:__**
+const gameRules = `**__شرح اللعبة:__**
 1- انضم للعبة عبر الزر الأخضر في الأسفل.
 2- تدور العجلة كل جولة وتختار لاعباً.
 3- اللاعب المختار يمكنه طرد لاعب، ينسحب، أو يستخدم خاصية من حقيبته.
-4- في آخر جولة تدور فيها العجلة، من يتم اختياره يفوز باللعبة.
+4- في آخر جولة تدور فيها العجلة، من يتم اختياره يفوز باللعبة.`;
 
----
+        const signupMsg = await m.channel.send({
+            
+content: `${gameRules}
 ⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${game.players.length}\``,
 
             components: [row],
@@ -552,7 +552,8 @@ content: `**__شرح اللعبة:__**
         } else {
             const currentGame = gameManager.getGame(m.channel.id);
             const count = currentGame ? currentGame.players.length : 0;
-            await signupMsg.edit({ content: `⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${count}\`` }).catch(() => {});
+            await signupMsg.edit({ content: `${gameRules}
+⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${count}\`` }).catch(() => {});
         }
         }, 5000);
 
