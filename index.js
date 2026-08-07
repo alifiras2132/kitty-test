@@ -285,9 +285,9 @@ async function startMatch(channel) {
         await msg.delete().catch(() => {});
 
         if (isRandom) {
-            await channel.send({ content: `💀 تم إقصاء <@${targetId}> بواسطة <@${winner.id}> بشكل عشوائي` });
+            await channel.send({ content: `💀 تم إقصاء <@${targetId}> بواسطة <@${winner.id}> بشكل عشوائي ، ستبدأ الجولة التالية بعد قليل` });
         } else {
-            await channel.send({ content: `💀 تم إقصاء <@${targetId}> بواسطة <@${winner.id}>` });
+            await channel.send({ content: `💀 تم إقصاء <@${targetId}> بواسطة <@${winner.id}> , ستبدأ الجولة التالية بعد قليل` });
         }
         await new Promise(resolve => setTimeout(resolve, 1500));
     }
