@@ -228,11 +228,10 @@ async function startMatch(channel) {
         if (currentRow.components.length > 0) rows.push(currentRow);
 
         const actionRow = new ActionRowBuilder().addComponents(
-            new ButtonBuilder().setCustomId(`kick_random`).setLabel("عشوائي 🎲").setStyle(ButtonStyle.Secondary),
-            new ButtonBuilder().setCustomId(`kick_leave`).setLabel("انسحاب 🏳️").setStyle(ButtonStyle.Secondary)
-        );
-        rows.push(actionRow);
-
+        new ButtonBuilder().setCustomId("kick_random").setLabel("عشوائي 🎲").setStyle(ButtonStyle.Primary), // أزرق
+        new ButtonBuilder().setCustomId("kick_leave").setLabel("انسحاب ❌").setStyle(ButtonStyle.Danger) // أحمر
+    );
+    rows.push(actionRow);
         const msg = await channel.send({ content: `اختر من الأسفل:`, components: rows });
 
         let collected;
@@ -471,11 +470,11 @@ client.on("messageCreate", async (m) => {
         const game = gameManager.getGame(m.channel.id);
 
         const row = new ActionRowBuilder().addComponents(
-            new ButtonBuilder().setCustomId("join_game").setLabel("دخول ➕").setStyle(ButtonStyle.Secondary),
-            new ButtonBuilder().setCustomId("leave_game").setLabel("خروج ➖").setStyle(ButtonStyle.Secondary),
-            new ButtonBuilder().setCustomId("open_shop").setLabel("المتجر 🏪").setStyle(ButtonStyle.Secondary),
-            new ButtonBuilder().setCustomId("open_inventory").setLabel("الحقيبة 💼").setStyle(ButtonStyle.Secondary)
-        );
+        new ButtonBuilder().setCustomId("join_game").setLabel("دخول ➕").setStyle(ButtonStyle.Success), // أخضر
+        new ButtonBuilder().setCustomId("leave_game").setLabel("خروج ➖").setStyle(ButtonStyle.Danger), // أحمر
+        new ButtonBuilder().setCustomId("open_shop").setLabel("المتجر 🏪").setStyle(ButtonStyle.Primary), // أزرق
+        new ButtonBuilder().setCustomId("open_inventory").setLabel("الحقيبة 💼").setStyle(ButtonStyle.Secondary) // رمادي
+    );
 
         let timeLeft = 60;
        const lobbyFile = new AttachmentBuilder('./lobby.gif');
