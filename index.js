@@ -17,7 +17,10 @@ const client = new Client({
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent
-    ]
+    ],
+    rest: {
+        timeout: 1000 * 60 * 5,
+    }
 });
 
 const TOKEN = "YOUR_TOKEN_HERE"; // ⚠️ ضع توكن بوتك الحقيقي هنا
@@ -479,7 +482,6 @@ client.on("messageCreate", async (m) => {
     const signupMsg = await m.channel.send({
         content: `⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${game.players.length}\``,
         components: [row],
-        files: [file]
     });
         game.messageId = signupMsg.id;
 
