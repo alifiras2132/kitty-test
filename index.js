@@ -228,8 +228,19 @@ async function startMatch(channel) {
         if (currentRow.components.length > 0) rows.push(currentRow);
 
         const actionRow = new ActionRowBuilder().addComponents(
-        new ButtonBuilder().setCustomId("kick_random").setLabel("عشوائي 🎲").setStyle(ButtonStyle.Primary), // أزرق
-        new ButtonBuilder().setCustomId("kick_leave").setLabel("انسحاب ❌").setStyle(ButtonStyle.Danger) // أحمر
+        // زر الانسحاب
+    new ButtonBuilder()
+        .setCustomId("leave_game")
+        .setLabel("انسحاب")
+        .setEmoji("1310481856634028075") // الـ ID الذي زودتني به
+        .setStyle(ButtonStyle.Danger),
+
+    // زر العشوائي (نرد)
+    new ButtonBuilder()
+        .setCustomId("random_choice")
+        .setLabel("عشوائي")
+        .setEmoji("🎲") // هذا إيموجي النرد العالمي
+        .setStyle(ButtonStyle.Primary)
     );
     rows.push(actionRow);
         const msg = await channel.send({ content: `اختر من الأسفل:`, components: rows });
@@ -470,10 +481,29 @@ client.on("messageCreate", async (m) => {
         const game = gameManager.getGame(m.channel.id);
 
         const row = new ActionRowBuilder().addComponents(
-        new ButtonBuilder().setCustomId("join_game").setLabel("دخول ➕").setStyle(ButtonStyle.Success), // أخضر
-        new ButtonBuilder().setCustomId("leave_game").setLabel("خروج ➖").setStyle(ButtonStyle.Danger), // أحمر
-        new ButtonBuilder().setCustomId("open_shop").setLabel("المتجر 🏪").setStyle(ButtonStyle.Primary), // أزرق
-        new ButtonBuilder().setCustomId("open_inventory").setLabel("الحقيبة 💼").setStyle(ButtonStyle.Secondary) // رمادي
+        new ButtonBuilder()
+            .setCustomId("join_game")
+            .setLabel("دخول")
+            .setEmoji("1310481846991196200") // ID دخولك المخصص
+            .setStyle(ButtonStyle.Success),
+
+        new ButtonBuilder()
+            .setCustomId("leave_game")
+            .setLabel("خروج")
+            .setEmoji("1310481856634028075") // ID خروجك المخصص
+            .setStyle(ButtonStyle.Danger),
+
+        new ButtonBuilder()
+            .setCustomId("open_shop")
+            .setLabel("المتجر")
+            .setEmoji("🛒") // إيموجي المتجر العالمي
+            .setStyle(ButtonStyle.Primary),
+
+        new ButtonBuilder()
+            .setCustomId("open_inventory")
+            .setLabel("الحقيبة")
+            .setEmoji("🎒") // إيموجي الحقيبة العالمي
+            .setStyle(ButtonStyle.Secondary)
     );
 
         let timeLeft = 60;
