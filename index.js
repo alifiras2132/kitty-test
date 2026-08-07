@@ -246,7 +246,7 @@ async function startMatch(channel) {
             await collected.update({ components: [] });
             await msg.delete().catch(() => {});
             await channel.send({ content: `🏳️ قرر <@${winner.id}> الانسحاب وخرج من اللعبة!` });
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await new Promise(resolve => setTimeout(resolve, 400));
             continue;
         } 
         else {
@@ -260,7 +260,7 @@ async function startMatch(channel) {
             await collected.update({ components: [] });
             await msg.delete().catch(() => {});
             await channel.send({ content: `🛡️ حاول <@${winner.id}> اقصاء <@${targetId}> ولكنه نجا بفضل خاصية الحماية` });
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await new Promise(resolve => setTimeout(resolve, 400));
             continue;
         }
 
@@ -270,7 +270,7 @@ async function startMatch(channel) {
             await collected.update({ components: [] });
             await msg.delete().catch(() => {});
             await channel.send({ content: `🔁 حاول <@${winner.id}> اقصاء <@${targetId}> ولكن الهجمة أرتدت على <@${winner.id}>` });
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await new Promise(resolve => setTimeout(resolve, 400));
             continue;
         }
 
@@ -289,7 +289,7 @@ async function startMatch(channel) {
         } else {
             await channel.send({ content: `💀 تم إقصاء <@${targetId}> بواسطة <@${winner.id}> , ستبدأ الجولة التالية بعد قليل` });
         }
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 400));
     }
 
     gameManager.deleteGame(channel.id);

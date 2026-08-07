@@ -28,8 +28,8 @@ module.exports = {
         const game = activeGames.get(channelId);
         if (!game || game.started) return false;
         
-        // ✅ تم تحديث الحد الأقصى هنا ليكون 25 لاعب بناءً على طلبك
-        if (game.players.length >= 25) return false; 
+        // ✅ تم تحديث الحد الأقصى هنا ليكون 150 لاعب بناءً على طلبك
+        if (game.players.length >= 150) return false; 
         if (game.players.some(p => p.id === user.id)) return false;
 
         game.players.push(user);
@@ -48,7 +48,7 @@ module.exports = {
 `🔥 **قوانين الموت:** العجلة تدور وتختار الجلاد، والجلاد يملك السلاح ليختار ضحية واحدة ويقضي عليها فوراً عبر الأزرار الحمراء!
 
 ⏱️ **الوقت المتبقي لبدء الجولة:** \`${timeLeft}\` ثانية.
-👥 **اللاعبين المسجلين حالياً (${players.length}/25):** ${playerList}`
+👥 **اللاعبين المسجلين حالياً (${players.length}/150):** ${playerList}`
             )
             .setImage(imageUrl) 
             .setFooter({ text: "تأكد من زيارة المتجر قبل بدء الجولة لشراء الدروع الحامية!" })
@@ -60,7 +60,7 @@ module.exports = {
             .setColor("#3498DB")
             .setTitle("🛒 متجر أدوات الروليت السرية")
             .setDescription(
-`مرحباً بك في السوق السوداء! استخدم كوينزاتك بحكمة لتأمين نفسك في الجولة القادمة:
+`مرحباً بك في المتجر ! استخدم كوينزاتك بحكمة لتأمين نفسك في الجولة القادمة:
 
 🛡️ **درع الحماية (60 كوينز):**
 إذا اختارك الجلاد للإقصاء، سيتم تفعيل الدرع تلقائياً وتنجو من الموت لمرة واحدة!
