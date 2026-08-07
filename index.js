@@ -623,6 +623,32 @@ const updatedGame = gameManager.getGame(m.channel.id);
     });
     }
 
+if (command === "ق روليت") {
+    // 1. التحقق من صلاحيات الإداري
+    if (!m.member.permissions.has("ManageMessages")) {
+        return m.reply("❌ عذراً، هذا الأمر مخصص للإداريين فقط.");
+    }
+
+    const game = gameManager.getGame(m.channel.id);
+
+    // 2. التحقق من وجود لعبة
+    if (!game) {
+        return m.reply("⚠️ لا توجد لعبة روليت حالياً في هذه القناة.");
+    }
+
+    // 3. التحقق من حالة اللعبة (هل بدأت؟)
+    // نتحقق من متغير game.started الموجود في ملف gameManager.js
+    if (game.started === true) {
+        return m.reply("❌ **لا يمكن إلغاء لعبة الروليت، اللعبة مشتغلة حالياً!**");
+    }
+
+    // 4. إذا لم تكن بدأت (أي أنها في مرحلة اللوبي/التسجيل)، نقوم بالإلغاء
+    gameManager.deleteGame(m.channel.id);
+    gameManager.unlock(m.channel.id); // لإلغاء القفل عن القناة
+    
+    m.reply("✅ تم إلغاء الروليت بنجاح.");
+}
+
     // ==========================================
     // 👤 بروفايل اللاعب (+profile)
     // ==========================================
