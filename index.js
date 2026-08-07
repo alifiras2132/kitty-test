@@ -467,21 +467,23 @@ client.on("messageCreate", async (m) => {
 
         let timeLeft = 60;
         
-        const signupMsg = await m.channel.send({ 
-            content: `⏳ **الوقت المتبقي لبدء الجولة:** \`${timeLeft}\` ثانية.`,
-            components: [row],
-            files: [{ attachment: "./lobby.png", name: "lobby.png" }] 
-        });
+        const signupMsg = await m.channel.send({
+        content: `⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${game.players.length}\``,
+        components: [row],
+        files: [{ attachment: "./lobby.png", name: "lobby.png" }]
+    });
         game.messageId = signupMsg.id;
 
         const countdownInterval = setInterval(async () => {
             timeLeft -= 5;
             if (timeLeft <= 0) {
-                clearInterval(countdownInterval);
-                await signupMsg.edit({ content: `🏁 **انتهى وقت التسجيل! تبدأ جولة الروليت الآن...**` }).catch(() => {});
-            } else {
-                await signupMsg.edit({ content: `⏳ **الوقت المتبقي لبدء الجولة:** \`${timeLeft}\` ثانية.` }).catch(() => {});
-            }
+            clearInterval(countdownInterval);
+            await signupMsg.edit({ content: `🔒 **انتهى وقت التسجيل! تبدأ جولة الروليت الآن...**`, components: [] }).catch(() => {});
+        } else {
+            const currentGame = gameManager.getGame(m.channel.id);
+            const count = currentGame ? currentGame.players.length : 0;
+            await signupMsg.edit({ content: `⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${count}\`` }).catch(() => {});
+        }
         }, 5000);
 
         const collector = signupMsg.createMessageComponentCollector({ time: 60000 });
@@ -493,6 +495,11 @@ client.on("messageCreate", async (m) => {
                 await i.reply({ content: "✅ تم تسجيل دخولك بنجاح في جولة الروليت!", ephemeral: true });
             }
 
+            const updatedGame = gameManager.getGame(m.channel.id);
+        if (updatedGame) {
+            signupMsg.edit({ content: `⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${updatedGame.players.length}\`` }).catch(() => {});
+        }
+
             if (i.customId === "leave_game") {
                 const liveGame = gameManager.getGame(m.channel.id);
                 if (liveGame) {
@@ -502,6 +509,12 @@ client.on("messageCreate", async (m) => {
                         return i.reply({ content: "🚪 تم خروجك من الروليت بنجاح.", ephemeral: true });
                     }
                 }
+
+const updatedGame = gameManager.getGame(m.channel.id);
+        if (updatedGame) {
+            signupMsg.edit({ content: `⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${updatedGame.players.length}\`` }).catch(() => {});
+        }
+
                 await i.reply({ content: "⚠️ أنت لست مسجلاً بالأساس في هذه الجولة!", ephemeral: true });
             }
 
