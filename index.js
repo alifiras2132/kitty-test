@@ -475,14 +475,15 @@ client.on("messageCreate", async (m) => {
 
         let timeLeft = 60;
         
-        // تعريف الملف
-    const file = new AttachmentBuilder('./lobby.gif');
+       // 1. تأكد أنك عرفت الملف خارج الإرسال (في السطر الذي قبله مباشرة)
+const lobbyFile = new AttachmentBuilder('./lobby.gif');
 
-    // إرسال الرسالة مرة واحدة فقط
-    const signupMsg = await m.channel.send({
-        content: `⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${game.players.length}\``,
-        components: [row],
-    });
+// 2. استخدم lobbyFile في الإرسال
+const signupMsg = await m.channel.send({
+    content: `⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${game.players.length}\``,
+    components: [row],
+    files: [lobbyFile] // استخدمنا المتغير هنا
+});
         game.messageId = signupMsg.id;
 
         const countdownInterval = setInterval(async () => {
