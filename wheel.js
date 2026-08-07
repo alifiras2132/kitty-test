@@ -29,8 +29,8 @@ async function spinWheel(players) {
     const winner = players[winnerIndex];
     const slice = (Math.PI * 2) / numPlayers;
     
-    const finalRotation = (Math.PI * 2 * 5) - (winnerIndex * slice) - (slice / 2);
-    const frames = 10; // 🌟 رجعناها 100 فريم مثل ما طلبت لسرعة طبيعية وسلسة
+    const finalRotation = (Math.PI * 2 * 1.5) - (winnerIndex * slice) - (slice / 2); // دورة ونصف فقط
+const frames = 50; // 50 فريم للحصول على سرعة معالجة عالية وحركة سلسة تماماً
     
     const nameLimit = numPlayers > 50 ? 11 : (numPlayers > 20 ? 13 : 16);
     const names = players.map(p => {
