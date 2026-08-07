@@ -161,24 +161,34 @@ async function startMatch(channel) {
     gameManager.startGameFlag(channel.id);
     let playersInGame = [...game.players];
 
+    // ✅ إرسال رسالة انتهاء التسجيل وبدء الجولة الأولى قبل بدء العجلة الأولى
+    await channel.send({ content: "✅ | تم الانتهاء من تسجيل الادوار ، ستبدأ الجولة الاولى بعد قليل..." });
+    await new Promise(resolve => setTimeout(resolve, 2000)); 
+
     while (playersInGame.length > 1) {
+        
+        // 🏆 إذا أصبح عدد اللاعبين 2 (الجولة الحاسمة الأخيرة)
+        const isFinalRound = (playersInGame.length === 2);
+
+        if (isFinalRound) {
+            await channel.send({ content: "🏆 | تبقى لاعبين فقط ، من تختاره العجلة في الجولة التالية هو الفائز" });
+            await new Promise(resolve => setTimeout(resolve, 1500)); 
+        }
+
         const { winner, gifPath } = await spinWheel(playersInGame);
         
-        // 🔄 تم التعديل: إرسال العجلة كملف منفصل لتظهر بحجمها الطبيعي والكامل
+        // 1. إرسال العجلة: إذا كانت جولة أخيرة نضع المنشن مباشرة بدون جملة 15 ثانية، وإذا كانت عادية نضع جملة الطرد
+        const wheelContent = isFinalRound ? `<@${winner.id}>` : `<@${winner.id}>، لديك 15 ثانية لإختيار شخص لطرده.`;
+
         const wheelMsg = await channel.send({ 
-            content: "🎡 **تدور العجلة الآن...**",
+            content: wheelContent,
             files: [{ attachment: gifPath, name: "spin.gif" }] 
         });
 
         await new Promise(resolve => setTimeout(resolve, 2000)); 
 
-        // تثبيت العجلة وتحويل النص لإعلان الفائز دون إخفاء الحجم الطبيعي
-        await wheelMsg.edit({ 
-            content: `<@${winner.id}>`
-        }).catch(() => {});
-
-        if (playersInGame.length === 2) {
-            const loser = playersInGame.find(p => p.id !== winner.id);
+        // 2. إذا كانت جولة نهائية (لاعبين اثنين): لا نحتاج أزرار ولا طرد، نعلن الفائز وننهي اللعبة فوراً
+        if (isFinalRound) {
             const fData = player(winner.id);
             fData.coins += 25; fData.wins += 1; update(winner.id, fData);
 
@@ -193,9 +203,10 @@ async function startMatch(channel) {
                 .setThumbnail(winner.displayAvatarURL({ size: 128, dynamic: true }));
 
             await channel.send({ embeds: [winEmbed] });
-            break;
+            break; 
         }
 
+        // 3. إذا كان عدد اللاعبين أكثر من 2: تجهيز وإرسال الأزرار في الأسفل
         const targets = playersInGame.filter(p => p.id !== winner.id);
         const rows = [];
         let currentRow = new ActionRowBuilder();
@@ -217,7 +228,7 @@ async function startMatch(channel) {
         );
         rows.push(actionRow);
 
-        const msg = await channel.send({ content: `<@${winner.id}>, لديك 15 ثانية لإختيار شخص لطرده.`, components: rows });
+        const msg = await channel.send({ content: `اختر من الأسفل:`, components: rows });
 
         let collected;
         try {
@@ -228,7 +239,7 @@ async function startMatch(channel) {
             });
         } catch (err) {
             playersInGame = playersInGame.filter(p => p.id !== winner.id);
-            await channel.send({ content: `⚠️ تم إقصاء <@${winner.id}> من اللعبة لعدم التفاعل!` });
+            await channel.send({ content: `⚠️ | تم طرد <@${winner.id}> من اللعبة لعدم التفاعل ، ستبدأ الجولة التالية بعد قليل...` });
             await msg.edit({ components: [] }).catch(() => {});
             continue;
         }
@@ -245,7 +256,7 @@ async function startMatch(channel) {
             playersInGame = playersInGame.filter(p => p.id !== winner.id);
             await collected.update({ components: [] });
             await msg.delete().catch(() => {});
-            await channel.send({ content: `🏳️ قرر <@${winner.id}> الانسحاب وخرج من اللعبة!` });
+            await channel.send({ content: `🏳️ | قرر <@${winner.id}> الانسحاب و خرج من اللعبة، ستبدأ الجولة التالية بعد قليل...` });
             await new Promise(resolve => setTimeout(resolve, 400));
             continue;
         } 
@@ -259,7 +270,7 @@ async function startMatch(channel) {
             targetData.shield = 0; update(targetId, targetData);
             await collected.update({ components: [] });
             await msg.delete().catch(() => {});
-            await channel.send({ content: `🛡️ حاول <@${winner.id}> اقصاء <@${targetId}> ولكنه نجا بفضل خاصية الحماية` });
+            await channel.send({ content: `🛡️ | حاول <@${winner.id}> طرد <@${targetId}> ولكنه نجا بفضل خاصية الحماية` });
             await new Promise(resolve => setTimeout(resolve, 400));
             continue;
         }
@@ -269,7 +280,7 @@ async function startMatch(channel) {
             playersInGame = playersInGame.filter(p => p.id !== winner.id);
             await collected.update({ components: [] });
             await msg.delete().catch(() => {});
-            await channel.send({ content: `🔁 حاول <@${winner.id}> اقصاء <@${targetId}> ولكن الهجمة أرتدت على <@${winner.id}>` });
+            await channel.send({ content: `🔁 | حاول <@${winner.id}> طرد <@${targetId}> ولكن ارتدت عليه الهجمة و تم طرده` });
             await new Promise(resolve => setTimeout(resolve, 400));
             continue;
         }
@@ -285,9 +296,9 @@ async function startMatch(channel) {
         await msg.delete().catch(() => {});
 
         if (isRandom) {
-            await channel.send({ content: `💀 تم إقصاء <@${targetId}> بواسطة <@${winner.id}> بشكل عشوائي ، ستبدأ الجولة التالية بعد قليل` });
+            await channel.send({ content: `🎲 | تم طرد <@${targetId}> من اللعبة بشكل عشوائي، ستبدأ الجولة التالية بعد قليل...` });
         } else {
-            await channel.send({ content: `💀 تم إقصاء <@${targetId}> بواسطة <@${winner.id}> , ستبدأ الجولة التالية بعد قليل` });
+            await channel.send({ content: `💣 | تم طرد <@${targetId}> من اللعبة، ستبدأ الجولة التالية بعد قليل...` });
         }
         await new Promise(resolve => setTimeout(resolve, 400));
     }
@@ -295,7 +306,6 @@ async function startMatch(channel) {
     gameManager.deleteGame(channel.id);
     gameManager.unlock(channel.id);
 }
-
 /* =========================
     🎮 BOT COMMANDS HANDLER
 ========================= */
