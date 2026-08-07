@@ -461,8 +461,7 @@ client.on("messageCreate", async (m) => {
     // ==========================================
     // 🎡 لعبة الروليت التلقائية (+روليت)
     // ==========================================
-    if (command === "روليت") {
-        console.log("تم استلام أمر روليت بنجاح!");
+    if (command === "روليت") {        
         gameManager.lock(m.channel.id);
         gameManager.createGame(m.channel.id, m.author.id, null);
         const game = gameManager.getGame(m.channel.id);
@@ -475,9 +474,8 @@ client.on("messageCreate", async (m) => {
         );
 
         let timeLeft = 60;
-        console.log("الآن سيقوم البوت بإرسال الملف...");
-       const lobbyFile = new AttachmentBuilder(require('path').join(__dirname, 'lobby.gif'));
-    const signupMsg = await m.channel.send({
+       const lobbyFile = new AttachmentBuilder('./lobby.gif');
+   const signupMsg = await m.channel.send({
         content: `⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${game.players.length}\``,
         components: [row],
         files: [lobbyFile]
