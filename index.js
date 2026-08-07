@@ -545,7 +545,7 @@ content: `${gameRules}
         game.messageId = signupMsg.id;
 
         const countdownInterval = setInterval(async () => {
-            timeLeft -= 5;
+            timeLeft -= 1;
             if (timeLeft <= 0) {
             clearInterval(countdownInterval);
             await signupMsg.edit({ content: `🔒 **انتهى وقت التسجيل! تبدأ جولة الروليت الآن...**`, components: [] }).catch(() => {});
@@ -555,7 +555,7 @@ content: `${gameRules}
             await signupMsg.edit({ content: `${gameRules}
 ⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${count}\`` }).catch(() => {});
         }
-        }, 5000);
+        }, 1000);
 
         const collector = signupMsg.createMessageComponentCollector({ time: 60000 });
 
