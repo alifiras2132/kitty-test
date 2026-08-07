@@ -168,6 +168,7 @@ async function startMatch(channel) {
     await new Promise(resolve => setTimeout(resolve, 2000)); 
 
     while (playersInGame.length > 1) {
+        
         const isFinalRound = (playersInGame.length === 2);
 
         if (isFinalRound) {
@@ -177,6 +178,7 @@ async function startMatch(channel) {
 
         const { winner, gifPath } = await spinWheel(playersInGame);
         
+        // 1. إرسال العجلة (تزامن مع التعديل اللاحق)
         const wheelMsg = await channel.send({ 
             content: "🎡 **تدور العجلة الآن...**",
             files: [{ attachment: gifPath, name: "spin.gif" }] 
@@ -190,6 +192,7 @@ async function startMatch(channel) {
             
         await wheelMsg.edit({ content: finalContent }).catch(() => {});
 
+        // 2. إذا كانت جولة أخيرة
         if (isFinalRound) {
             const fData = player(winner.id);
             fData.coins += 25; fData.wins += 1; update(winner.id, fData);
@@ -208,6 +211,7 @@ async function startMatch(channel) {
             break; 
         }
 
+        // 3. تجهيز الأزرار (تأكدنا من أن الأزرار ستبقى موجودة دائماً)
         const targets = playersInGame.filter(p => p.id !== winner.id);
         const rows = [];
         let currentRow = new ActionRowBuilder();
@@ -239,7 +243,7 @@ async function startMatch(channel) {
                 time: 15000 
             });
         } catch (err) {
-            // تعطيل الأزرار بدلاً من حذفها عند انتهاء الوقت
+            // تعطيل الأزرار عند انتهاء الوقت
             const disabledRows = msg.components.map(row => ActionRowBuilder.from(row).setComponents(row.components.map(c => ButtonBuilder.from(c).setDisabled(true))));
             await msg.edit({ components: disabledRows }).catch(() => {});
             
@@ -249,7 +253,7 @@ async function startMatch(channel) {
             continue;
         }
 
-        // تعطيل الأزرار بدلاً من حذفها عند اختيار قرار
+        // تعطيل الأزرار عند اتخاذ القرار (الأزرار لن تختفي!)
         const disabledRows = msg.components.map(row => ActionRowBuilder.from(row).setComponents(row.components.map(c => ButtonBuilder.from(c).setDisabled(true))));
         await collected.update({ components: disabledRows });
 
@@ -474,11 +478,11 @@ client.on("messageCreate", async (m) => {
         );
 
         let timeLeft = 60;
-       const lobbyFile = new AttachmentBuilder('./lobby.gif');
-   const signupMsg = await m.channel.send({
+       const file = new AttachmentBuilder('./lobby.gif');
+  const signupMsg = await m.channel.send({
         content: `⏳ **الوقت المتبقي:** \`${timeLeft}\` ثانية | 👥 **اللاعبين:** \`${game.players.length}\``,
         components: [row],
-        files: [lobbyFile]
+        files: [file]
     });
         game.messageId = signupMsg.id;
 
