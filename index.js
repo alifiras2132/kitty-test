@@ -623,7 +623,7 @@ const updatedGame = gameManager.getGame(m.channel.id);
     });
     }
 
-if (command === "ق روليت") {
+if (m.content === "ق روليت") {
     // 1. التحقق من صلاحيات الإداري
     if (!m.member.permissions.has("ManageMessages")) {
         return m.reply("❌ عذراً، هذا الأمر مخصص للإداريين فقط.");
